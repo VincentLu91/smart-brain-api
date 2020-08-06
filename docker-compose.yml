@@ -1,0 +1,42 @@
+version: '3.6'
+services:
+
+    # Backend API
+    smart-brain-api:
+        container_name: backend
+        # image: node:8.11.1
+        build: ./
+        command: npm start
+        working_dir: /usr/src/smart-brain-api
+        environment:
+            POSTGRES_URI: postgres://sally:secret@postgres:5432/smart-brain-docker
+            REDIS_URI: redis://redis:6379
+        # Heads up! Docker has updated this feature and now you don't need to define the links property in order for things to work - https://docs.docker.com/compose/networking/
+        # links:
+        #     - postgres
+        #     - redis
+        ports:
+            - "3000:3000"
+        volumes:
+            - ./:/usr/src/smart-brain-api
+
+
+    # Postgres
+    postgres:
+        container_name: postgres
+        environment:
+            POSTGRES_USER: sally
+            POSTGRES_PASSWORD: secret
+            POSTGRES_URL: postgres://sally:secret@localhost:5432/smart-brain-docker
+            POSTGRES_DB: smart-brain-docker
+            POSTGRES_HOST: postgres
+        build: ./postgres # where we made the change
+        ports:
+            - "5431:5432"
+
+    # Redis
+    redis:
+        container_name: redis
+        image: redis
+        ports:
+            - "6379:6379"
